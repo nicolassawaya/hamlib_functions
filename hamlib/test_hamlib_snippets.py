@@ -7,6 +7,7 @@ import pytest
 import networkx as nwx
 
 from openfermion import QubitOperator, FermionOperator, count_qubits
+from qiskit.quantum_info import SparsePauliOp
 #from mat2qubit import qSymbOp
 
 import os
@@ -26,7 +27,7 @@ def test_io_hierarchical_hdf5():
     hamlib_snippets.save_openfermion_hdf5(op2, fname, strkey2)
 
     # Print structure of file keys
-    hamlib_snippets.print_hierarchical_hdf5_structure(fname)
+    hamlib_snippets.print_hdf5_structure(fname)
 
     # Get flat list of keys
     keys = hamlib_snippets.get_hierarchical_hdf5_keys(fname)
@@ -45,7 +46,7 @@ def test_io_hierarchical_hdf5():
 
 
 def test_io_qubitoperator():
-    
+
     # Define
     op = QubitOperator("1 [] + 2 [X0 X2] + 3 [Z0] + 4 [Y1]")
 
@@ -60,6 +61,11 @@ def test_io_qubitoperator():
 
     # Compare
     assert op == op_loaded
+
+    # Load as Qiskit SparsePauliOp
+    op_qiskit = hamlib_snippets.read_qiskit_hdf5(fname, strkey)
+    assert isinstance(op_qiskit, SparsePauliOp)
+
 
     # Delete file
     os.remove(fname)
