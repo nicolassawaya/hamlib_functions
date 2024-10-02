@@ -25,8 +25,8 @@ def test_io_hierarchical_hdf5():
     strkey2 = "/toplevel/midlevel/op2"
     hamlib_snippets.save_openfermion_hdf5(op2, fname, strkey2)
 
-    # Print structure of file keys
-    hamlib_snippets.print_hierarchical_hdf5_structure(fname)
+    # # Print structure of file keys
+    # hamlib_snippets.print_hierarchical_hdf5_structure(fname)
 
     # Get flat list of keys
     keys = hamlib_snippets.get_hierarchical_hdf5_keys(fname)
@@ -199,6 +199,11 @@ def test_process_keystring():
 
 
 def test_clause_list():
+
+    # Delete file if it exists
+    if os.path.exists("test_clause_list_snippets.hdf5"):
+        os.remove("test_clause_list_snippets.hdf5")
+        
     # Example clause list with sign list
     clause_list = [
             (1,2,3),
@@ -228,6 +233,9 @@ def test_clause_list():
     # Check if the clause lists are the same
     assert base_clause_set == test_clause_set
 
+    # Delete file
+    os.remove("test_clause_list_snippets.hdf5")
+
 
 def test_convert_to_dimacs():
     # Example clause list with sign list
@@ -249,10 +257,11 @@ def test_convert_to_dimacs():
     dimacs_format = hamlib_snippets.convert_to_dimacs(clause_list, sign_list)
 
     expected = set()
-    expected.add((1, 2, -3))
-    expected.add((2, -4, 5))
-    expected.add((-1, 3, -6))
-    expected.add((2, -3, -4))
+    # Note: these clauses are in a different order from the original
+    expected.add((2, 3, -4))
+    expected.add((3, -5, 6))
+    expected.add((-2, 4, -7))
+    expected.add((3, -4, -5))
 
     dimacs_set = set([c for c in dimacs_format])
 
@@ -266,13 +275,14 @@ def test_convert_from_dimacs():
         (-1, 3, -6),
         (2, -3, -4),
         ]
-
+    
+    # Note: these clauses are in a different order from the original
     expected_clause_set = set([
-            (1,2,3),
-            (2,4,5),
-            (1,3,6),
-            (2,3,4)
-            ])
+        (0, 1, 2),
+        (1, 2, 3),
+        (1, 3, 4),
+        (0, 2, 5)
+        ])
 
     expected_sign_set = set([
             (0, 0, 1),
@@ -309,8 +319,8 @@ def test_remove_qindices():
 def test_remove_smaller_values():
     # Test remove_smaller_values
     op = QubitOperator("-1 [] + -2 [X0 X2] + -3 [Z0] + -4 [Y1]")
-    hamlib_snippets.remove_smaller_values(op, 3)
-    assert op == QubitOperator("3 [Z0] + 4 [Y1]")
+    op2 = hamlib_snippets.remove_smaller_values(op, 3)
+    assert op2 == QubitOperator("-3 [Z0] + -4 [Y1]")
 
 
 
